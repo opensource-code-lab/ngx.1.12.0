@@ -100,6 +100,9 @@ HTTP_INCS = -I src/http \
 	-I src/http/modules
 
 
+ADDON_DEPS = $(CORE_DEPS)  $(HTTP_DEPS)
+
+
 build:	binary modules manpage
 
 binary:	objs/nginx
@@ -219,6 +222,7 @@ objs/nginx:	objs/src/core/nginx.o \
 	objs/src/http/modules/ngx_http_upstream_least_conn_module.o \
 	objs/src/http/modules/ngx_http_upstream_keepalive_module.o \
 	objs/src/http/modules/ngx_http_upstream_zone_module.o \
+	objs/addon/ngx_http_mytest_module/ngx_http_mytest_module.o \
 	objs/ngx_modules.o
 
 	$(LINK) -o objs/nginx \
@@ -337,6 +341,7 @@ objs/nginx:	objs/src/core/nginx.o \
 	objs/src/http/modules/ngx_http_upstream_least_conn_module.o \
 	objs/src/http/modules/ngx_http_upstream_keepalive_module.o \
 	objs/src/http/modules/ngx_http_upstream_zone_module.o \
+	objs/addon/ngx_http_mytest_module/ngx_http_mytest_module.o \
 	objs/ngx_modules.o \
 	-ldl -lpthread -lcrypt -lpcre -lz \
 	-Wl,-E
@@ -1155,6 +1160,13 @@ objs/src/http/modules/ngx_http_upstream_zone_module.o:	$(CORE_DEPS) $(HTTP_DEPS)
 	$(CC) -c $(CFLAGS) $(CORE_INCS) $(HTTP_INCS) \
 		-o objs/src/http/modules/ngx_http_upstream_zone_module.o \
 		src/http/modules/ngx_http_upstream_zone_module.c
+
+
+objs/addon/ngx_http_mytest_module/ngx_http_mytest_module.o:	$(ADDON_DEPS) \
+	mymodules/ngx_http_mytest_module/ngx_http_mytest_module.c
+	$(CC) -c $(CFLAGS)  $(ALL_INCS) \
+		-o objs/addon/ngx_http_mytest_module/ngx_http_mytest_module.o \
+		mymodules/ngx_http_mytest_module/ngx_http_mytest_module.c
 
 
 manpage:	objs/nginx.8
