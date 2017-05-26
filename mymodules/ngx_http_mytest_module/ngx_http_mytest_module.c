@@ -20,6 +20,21 @@ static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r)
 	r->headers_out.content_type = type;
 	r->headers_out.content_length_n = reponse.len;
 
+	ngx_table_elt_t *h = ngx_list_push( & r->headers_out.headers);
+	h->hash = 1;
+#define str2ngx_string(s,str) \
+	s.len = sizeof(str) - 1;\
+	s.data = (u_char *)str;
+
+	str2ngx_string(h->key,"ModuleName");
+	str2ngx_string(h->value,"Mytest");
+
+//	h->key.len = sizeof("ModuleName") - 1;
+//	h->key.data = "ModuleName";
+//	h->key  =   ngx_string("ModuleName");
+//	h->value = ngx_string("Mytest");
+#undef str2ngx_string
+//	str2ngx_string(h->value,"Mytest1"); --- error call macro
 
 	rc = ngx_http_send_header(r);
 	if(rc == NGX_ERROR || rc > NGX_OK || r->header_only)
