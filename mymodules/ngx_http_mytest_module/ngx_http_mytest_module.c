@@ -147,9 +147,46 @@ static ngx_command_t ngx_http_mytest_commands[] ={
 	ngx_null_command,
 };
 
+typedef struct{
+	ngx_str_t my_str;
+	ngx_int_t my_num;
+	ngx_flag_t my_flag;
+	size_t my_size;
+	ngx_array_t* my_str_array;
+	ngx_array_t* my_keyval;
+	off_t my_off;
+	ngx_msec_t my_msec;
+	time_t my_sec;
+	ngx_bufs_t my_buffs;
+	ngx_uint_t my_enum_seq;
+	ngx_uint_t my_bitmask;
+	ngx_uint_t my_access;
+	ngx_path_t* my_path;
+}ngx_http_mytest_conf_t;
+
+static void* ngx_http_mytest_create_loc_conf(ngx_conf_t *cf)
+{
+	ngx_http_mytest_conf_t *mycn;
+	mycn = (ngx_http_mytest_conf_t*) ngx_pcalloc(cf->pool, sizeof(*mycn));
+	if(mycn == NULL)
+		return NULL;
+	mycn->my_flag = NGX_CONF_UNSET;
+	mycn->my_num = NGX_CONF_UNSET;
+	mycn->my_str_array = NGX_CONF_UNSET_PTR;
+	mycn->my_keyval = NULL;
+	mycn->my_off = NGX_CONF_UNSET;
+	mycn->my_msec = NGX_CONF_UNSET_MSEC;
+	mycn->my_sec = NGX_CONF_UNSET;
+	mycn->my_size = NGX_CONF_UNSET_SIZE;
+
+	return mycn;
+}
+
 static ngx_http_module_t ngx_http_mytest_module_ctx = {
 		NULL,NULL,NULL,NULL,
-		NULL,NULL,NULL,NULL
+		NULL,NULL,
+		ngx_http_mytest_create_loc_conf,
+		NULL
 };
 
 ngx_module_t ngx_http_mytest_module = {
