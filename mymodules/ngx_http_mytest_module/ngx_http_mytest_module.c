@@ -162,6 +162,7 @@ typedef struct{
 	ngx_uint_t my_bitmask;
 	ngx_uint_t my_access;
 	ngx_path_t* my_path;
+	ngx_http_upstream_conf_t upstream;
 }ngx_http_mytest_conf_t;
 
 static void* ngx_http_mytest_create_loc_conf(ngx_conf_t *cf)
@@ -179,14 +180,62 @@ static void* ngx_http_mytest_create_loc_conf(ngx_conf_t *cf)
 	mycn->my_sec = NGX_CONF_UNSET;
 	mycn->my_size = NGX_CONF_UNSET_SIZE;
 
+	mycn->upstream.connect_timeout = 60000;
+	mycn->upstream.send_timeout = 60000;
+	mycn->upstream.read_timeout= 60000;
+	mycn->upstream.store_access = 0600;
+
+	mycn->upstream.buffering = 0;
+	mycn->upstream.bufs.num = 8;
+	mycn->upstream.bufs.size = ngx_pagesize;
+	mycn->upstream.buffer_size = ngx_pagesize;
+	mycn->upstream.busy_buffers_size = 2 * ngx_pagesize;
+	mycn->upstream.temp_file_write_size = 2 * ngx_pagesize;
+	mycn->upstream.max_temp_file_size = 1024 * 1024 * 1024;
+
+	mycn->upstream.hide_headers = NGX_CONF_UNSET_PTR;
+	mycn->upstream.hide_headers_hash = NGX_CONF_UNSET_PTR;
+
 	return mycn;
+}
+
+static ngx_str_t  ngx_http_proxy_hide_headers[] ={
+    ngx_string("Date"),
+    ngx_string("Server"),
+    ngx_string("X-Pad"),
+    ngx_string("X-Accel-Expires"),
+    ngx_string("X-Accel-Redirect"),
+    ngx_string("X-Accel-Limit-Rate"),
+    ngx_string("X-Accel-Buffering"),
+    ngx_string("X-Accel-Charset"),
+    ngx_null_string
+};
+
+static char * ngx_http_mytest_merge_loc_conf(ngx_conf_t cf, void* parent, void* child)
+{
+	ngx_http_mytest_conf_t *prev = parent;
+	ngx_http_mytest_conf_t *conf = child;
+
+	ngx_hash_init_t hash;
+	hash.max_size = 100;
+	hash.bucket_size = 1024;
+	hash.name = "proxy_headers_hash";
+
+	if(ngx_http_upstream_hide_headers_hash(cf,
+			&conf->upstream,&prev->upstream,
+			ngx_http_proxy_hide_headers, &hash) != NGX_OK)
+	{
+		return NGX_CONF_ERROR;
+	}
+
+	return NGX_CONF_OK;
 }
 
 static ngx_http_module_t ngx_http_mytest_module_ctx = {
 		NULL,NULL,NULL,NULL,
 		NULL,NULL,
 		ngx_http_mytest_create_loc_conf,
-		NULL
+		ngx_http_mytest_merge_loc_conf
 };
 
 ngx_module_t ngx_http_mytest_module = {
