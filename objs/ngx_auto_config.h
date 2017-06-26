@@ -1,4 +1,9 @@
-#define NGX_CONFIGURE " --add-module=mymodules/ngx_http_mytest_module"
+#define NGX_CONFIGURE " --add-module=./mymodules/ngx_http_mytest1_module --with-debug"
+
+#ifndef NGX_DEBUG
+#define NGX_DEBUG  1
+#endif
+
 
 #ifndef NGX_COMPILER
 #define NGX_COMPILER  "gcc 6.3.1 20161221 (Red Hat 6.3.1-1) (GCC) "
