@@ -6,6 +6,8 @@
 
 static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r)
 {
+	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "a new requset %N");
+
 	if(!(r->method &(NGX_HTTP_GET)))
 	{
 		return NGX_HTTP_NOT_ALLOWED;
@@ -63,6 +65,9 @@ static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r)
 
 static char * ngx_http_mytest(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
+
+	ngx_log_error(NGX_LOG_ALERT, cf->log, 0, "register handler, %s %d", __FILE__, __LINE__);
+
 	ngx_http_core_loc_conf_t *clcf;
 	clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
 	clcf->handler = ngx_http_mytest_handler;
